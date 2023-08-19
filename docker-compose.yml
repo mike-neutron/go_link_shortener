@@ -1,0 +1,45 @@
+version: "3"
+services:
+  #App
+  app:
+    container_name: link_shortener_app
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    volumes:
+      - ./:/app
+    ports:
+      - 9595:8080
+    networks:
+      - rates
+    depends_on:
+      - postgres
+
+  #PostreSQL Service
+  postgres:
+    image: postgres:15 # Image page: <https://hub.docker.com/_/redis>
+    container_name: link_shortener_postgresql
+    logging: # https://docs.docker.com/compose/compose-file/#loggin
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "5599:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      SERVICE_NAME: postgres
+      SERVICE_TAGS: dev
+    volumes:
+      - ./docker/postgres/dbdata:/var/lib/postgresql/data
+    networks:
+      - rates
+
+#Docker Networks
+networks:
+  rates:
+    driver: bridge
