@@ -5,5 +5,5 @@ import (
 )
 
 func HelloWorld(c *fiber.Ctx) error {
-	return c.SendString("Hello, World 👋!")
+	return c.SendString("Hello, World 👋! It`s a link shortener in Golang.")
 }
