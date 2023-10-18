@@ -5,6 +5,8 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/mike-neutron/go_link_shortener/src/initializers"
+	"github.com/mike-neutron/go_link_shortener/src/models"
 	"github.com/sqids/sqids-go"
 )
 
@@ -26,7 +28,18 @@ func Make(c *fiber.Ctx) error {
 		return c.SendStatus(400)
 	}
 
-	id, _ := s.Encode([]uint64{1})
+	var row models.Link
+	err := initializers.DB.Where("original = ?", body.Link).First(&row)
+	if err != nil {
+		if err.RowsAffected != 1 {
+			row = models.Link{
+				Original: body.Link,
+			}
+			initializers.DB.Create(&row)
+		}
+	}
+
+	id, _ := s.Encode([]uint64{uint64(row.ID)})
 	return c.SendString(id)
 }
 
@@ -38,8 +51,14 @@ func Get(c *fiber.Ctx) error {
 
 	if len(ids) == 1 {
 		id := ids[0]
-		return c.SendString(fmt.Sprint(id))
+		var row models.Link
+		err := initializers.DB.Where("id = ?", id).First(&row).Error
+		if err != nil {
+			return c.SendStatus(400)
+		}
+
+		return c.SendString(fmt.Sprint(row.Original))
 	}
 
-	return c.SendString("Not found")
+	return c.SendStatus(404)
 }

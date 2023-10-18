@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/mike-neutron/go_link_shortener/src/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -25,7 +26,7 @@ func ConnectDB(config *Config) {
 	DB.Logger = logger.Default.LogMode(logger.Info)
 
 	// log.Println("Running Migrations")
-	// DB.AutoMigrate(&models.Rate{})
+	DB.AutoMigrate(&models.Link{})
 
 	log.Println("🚀 Connected Successfully to the Database")
 }

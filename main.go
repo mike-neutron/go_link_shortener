@@ -26,7 +26,7 @@ func main() {
 	app.Use(logger.New())
 
 	app.Get("/", controllers.HelloWorld)
-	app.Post("/make", controllers.Make)
-	app.Get("/:link", controllers.Get)
+	app.Post("/api/make", controllers.Make)
+	app.Get("/api/get/:link", controllers.Get)
 	log.Fatal(app.Listen(":8080"))
 }
