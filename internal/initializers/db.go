@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/mike-neutron/go_link_shortener/src/models"
+	"github.com/mike-neutron/go_link_shortener/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

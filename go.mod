@@ -4,8 +4,11 @@ go 1.18
 
 require github.com/go-playground/validator/v10 v10.15.1
 
+require github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
+
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
+	github.com/davidmytton/url-verifier v1.0.0
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect

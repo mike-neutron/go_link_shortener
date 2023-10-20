@@ -5,8 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/mike-neutron/go_link_shortener/src/controllers"
-	"github.com/mike-neutron/go_link_shortener/src/initializers"
+	"github.com/mike-neutron/go_link_shortener/internal/controllers"
+	"github.com/mike-neutron/go_link_shortener/internal/initializers"
 )
 
 func init() {
