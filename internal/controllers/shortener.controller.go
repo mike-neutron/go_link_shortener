@@ -42,23 +42,21 @@ func Make(c *fiber.Ctx) error {
 	}
 
 	urlQuery := url.RawQuery
+	urlPath := url.Path
 	if len(url.RawQuery) > 0 {
 		urlQuery = "?" + urlQuery
 	}
-	urlPath := url.Path
-	// if url.Path[len(url.Path)-1:] != "/" {
-	// 	urlPath = urlPath + "/"
-	// }
 
 	formattedLink := "//" + url.Host + urlPath + urlQuery
 	query := initializers.DB.Where("original = ?", formattedLink).First(&row)
-	if query != nil {
-		if query.RowsAffected != 1 {
-			row = models.Link{
-				Original: formattedLink,
-			}
-			initializers.DB.Create(&row)
+	if query.Error != nil {
+		return c.SendStatus(500)
+	}
+	if query.RowsAffected != 1 {
+		row = models.Link{
+			Original: formattedLink,
 		}
+		initializers.DB.Create(&row)
 	}
 
 	id, _ := s.Encode([]uint64{uint64(row.ID)})
