@@ -1,17 +1,21 @@
 package controllers
 
 import (
+	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/mike-neutron/go_link_shortener/internal/initializers"
 	"github.com/mike-neutron/go_link_shortener/internal/models"
 	"github.com/sqids/sqids-go"
 )
 
 type MakeShortLinkRequest struct {
-	Link string `json:"link" validate:"required,min=2,max=256"`
+	Short string `json:"short"`
+	Link  string `json:"link" validate:"required,min=2,max=1000"`
 }
 
 var s, _ = sqids.New()
@@ -49,33 +53,71 @@ func Make(c *fiber.Ctx) error {
 
 	formattedLink := "//" + url.Host + urlPath + urlQuery
 	query := initializers.DB.Where("original = ?", formattedLink).First(&row)
-	if query.RowsAffected != 1 {
-		row = models.Link{
-			Original: formattedLink,
-		}
-		initializers.DB.Create(&row)
+	if query.RowsAffected == 1 {
+		return c.JSON(fiber.Map{"short": row.Short})
 	}
 
-	id, _ := s.Encode([]uint64{uint64(row.ID)})
-	return c.JSON(fiber.Map{"id": id})
+	var short string
+	if len(body.Short) > 0 {
+		short = body.Short
+	} else {
+		short = Shorten(uuid.New().ID())
+	}
+
+	row = models.Link{
+		Short:    short,
+		Original: formattedLink,
+	}
+	initializers.DB.Create(&row)
+
+	return c.JSON(fiber.Map{"short": row.Short})
 }
 
 func Get(c *fiber.Ctx) error {
 
-	short := c.Params("link")
-
-	ids := s.Decode(short)
-
-	if len(ids) == 1 {
-		id := ids[0]
-		var row models.Link
-		err := initializers.DB.Where("id = ?", id).First(&row).Error
-		if err != nil {
-			return c.SendStatus(400)
-		}
-
-		return c.JSON(fiber.Map{"link": row.Original})
+	short := c.Params("short")
+	if len(short) == 0 {
+		return c.SendStatus(400)
 	}
 
-	return c.SendStatus(404)
+	var row models.Link
+	err := initializers.DB.Where("short = ?", short).First(&row).Error
+	fmt.Print(err)
+
+	if err != nil {
+		return c.SendStatus(400)
+	}
+
+	return c.JSON(fiber.Map{"link": row.Original})
+}
+
+const alphabet = "ynAJfoSgdXHB5VasEMtcbPCr1uNZ4LG723ehWkvwYR6KpxjTm8iQUFqz9D"
+
+var alphabetLen = uint32(len(alphabet))
+
+func Shorten(id uint32) string {
+	var (
+		digits  []uint32
+		num     = id
+		builder strings.Builder
+	)
+
+	for num > 0 {
+		digits = append(digits, num%alphabetLen)
+		num /= alphabetLen
+	}
+
+	reverse(digits)
+
+	for _, digit := range digits {
+		builder.WriteString(string(alphabet[digit]))
+	}
+
+	return builder.String()
+}
+
+func reverse[S ~[]E, E any](s S) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
 }
