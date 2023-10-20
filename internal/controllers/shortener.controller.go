@@ -49,9 +49,6 @@ func Make(c *fiber.Ctx) error {
 
 	formattedLink := "//" + url.Host + urlPath + urlQuery
 	query := initializers.DB.Where("original = ?", formattedLink).First(&row)
-	if query.Error != nil {
-		return c.SendStatus(500)
-	}
 	if query.RowsAffected != 1 {
 		row = models.Link{
 			Original: formattedLink,
@@ -60,7 +57,7 @@ func Make(c *fiber.Ctx) error {
 	}
 
 	id, _ := s.Encode([]uint64{uint64(row.ID)})
-	return c.SendString(id)
+	return c.JSON(fiber.Map{"id": id})
 }
 
 func Get(c *fiber.Ctx) error {
@@ -77,7 +74,7 @@ func Get(c *fiber.Ctx) error {
 			return c.SendStatus(400)
 		}
 
-		return c.SendString(row.Original)
+		return c.JSON(fiber.Map{"link": row.Original})
 	}
 
 	return c.SendStatus(404)
