@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/mike-neutron/go_link_shortener/internal/initializers"
 	"github.com/mike-neutron/go_link_shortener/internal/models"
+	"github.com/mike-neutron/go_link_shortener/internal/services"
 )
 
 type MakeRequest struct {
@@ -74,7 +74,7 @@ func Make(c *fiber.Ctx) error {
 	if len(body.Short) > 0 {
 		short = body.Short
 	} else {
-		short = Shorten(uuid.New().ID())
+		short = services.Shorten(uuid.New().ID())
 	}
 
 	row = models.Link{
@@ -110,35 +110,4 @@ func Get(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(&GetResponse{Original: row.Original})
-}
-
-const alphabet = "ynAJfoSgdXHB5VasEMtcbPCr1uNZ4LG723ehWkvwYR6KpxjTm8iQUFqz9D"
-
-var alphabetLen = uint32(len(alphabet))
-
-func Shorten(id uint32) string {
-	var (
-		digits  []uint32
-		num     = id
-		builder strings.Builder
-	)
-
-	for num > 0 {
-		digits = append(digits, num%alphabetLen)
-		num /= alphabetLen
-	}
-
-	reverse(digits)
-
-	for _, digit := range digits {
-		builder.WriteString(string(alphabet[digit]))
-	}
-
-	return builder.String()
-}
-
-func reverse[S ~[]E, E any](s S) {
-	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
-		s[i], s[j] = s[j], s[i]
-	}
 }
