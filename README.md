@@ -13,3 +13,5 @@ It uses Golang, Fiber, Gorm.
 <b>Commands:</b><br>
 - `docker compose up`<br>
 for run server<br>
+- `swag init -g ./cmd/main.go -o ./docs`<br>
+for generate swagger<br>

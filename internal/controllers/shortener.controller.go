@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -10,38 +11,49 @@ import (
 	"github.com/google/uuid"
 	"github.com/mike-neutron/go_link_shortener/internal/initializers"
 	"github.com/mike-neutron/go_link_shortener/internal/models"
-	"github.com/sqids/sqids-go"
 )
 
-type MakeShortLinkRequest struct {
-	Short string `json:"short"`
-	Link  string `json:"link" validate:"required,min=2,max=1000"`
+type MakeRequest struct {
+	Short string `json:"short" example:"da3rsf"`
+	Link  string `json:"link" example:"http://example.com/da3rsf" validate:"required,min=2,max=1000"`
 }
 
-var s, _ = sqids.New()
+type MakeResponse struct {
+	Short string `json:"short" example:"http://example.com/da3rsf"`
+}
 
+type GetResponse struct {
+	Original string `json:"original" example:"http://example.com/"`
+}
+
+//	@Summary		Make short link
+//	@Description	Make short link
+//	@Produce		json
+//  @Param request body controllers.MakeRequest true "Make request"
+//	@Success		200	{object} MakeResponse
+//	@Router			/api/make [post]
 func Make(c *fiber.Ctx) error {
 	var (
-		body MakeShortLinkRequest
+		body MakeRequest
 		row  models.Link
 	)
 	if err := c.BodyParser(&body); err != nil {
-		return c.SendStatus(400)
+		return c.SendStatus(http.StatusBadRequest)
 	}
 
 	validate := validator.New()
 	if err := validate.Struct(body); err != nil {
-		return c.SendStatus(400)
+		return c.SendStatus(http.StatusBadRequest)
 	}
 
 	url, err := url.Parse(body.Link)
 	if err != nil {
-		return c.SendStatus(400)
+		return c.SendStatus(http.StatusBadRequest)
 	}
 	if len(url.Host) == 0 {
 		url, err := url.Parse("//" + body.Link)
 		if err != nil || len(url.Host) == 0 {
-			return c.SendStatus(400)
+			return c.SendStatus(http.StatusBadRequest)
 		}
 	}
 
@@ -70,14 +82,20 @@ func Make(c *fiber.Ctx) error {
 	}
 	initializers.DB.Create(&row)
 
-	return c.JSON(fiber.Map{"short": row.Short})
+	return c.JSON(&MakeResponse{Short: short})
 }
 
+//	@Summary		Get original link by short equivalent
+//	@Description	Get original link by short equivalent
+//	@Produce		json
+//	@Param			short	path		string	true "Short"	"String"
+//	@Success		200	{object}	GetResponse
+//	@Router			/api/get/{short} [get]
 func Get(c *fiber.Ctx) error {
 
 	short := c.Params("short")
 	if len(short) == 0 {
-		return c.SendStatus(400)
+		return c.SendStatus(http.StatusBadRequest)
 	}
 
 	var row models.Link
@@ -85,10 +103,10 @@ func Get(c *fiber.Ctx) error {
 	fmt.Print(err)
 
 	if err != nil {
-		return c.SendStatus(400)
+		return c.SendStatus(http.StatusNotFound)
 	}
 
-	return c.JSON(fiber.Map{"link": row.Original})
+	return c.JSON(&GetResponse{Original: row.Original})
 }
 
 const alphabet = "ynAJfoSgdXHB5VasEMtcbPCr1uNZ4LG723ehWkvwYR6KpxjTm8iQUFqz9D"

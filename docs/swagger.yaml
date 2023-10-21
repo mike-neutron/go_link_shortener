@@ -1,0 +1,69 @@
+basePath: /
+definitions:
+  controllers.GetResponse:
+    properties:
+      original:
+        example: http://example.com/
+        type: string
+    type: object
+  controllers.MakeRequest:
+    properties:
+      link:
+        example: http://example.com/da3rsf
+        maxLength: 1000
+        minLength: 2
+        type: string
+      short:
+        example: da3rsf
+        type: string
+    required:
+    - link
+    type: object
+  controllers.MakeResponse:
+    properties:
+      short:
+        example: http://example.com/da3rsf
+        type: string
+    type: object
+info:
+  contact: {}
+  description: api for making short links
+  title: Link shortener API
+  version: "1.0"
+paths:
+  /api/get/{short}:
+    get:
+      description: Get original link by short equivalent
+      parameters:
+      - description: Short
+        in: path
+        name: short
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.GetResponse'
+      summary: Get original link by short equivalent
+  /api/make:
+    post:
+      description: Make short link
+      parameters:
+      - description: Make request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.MakeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.MakeResponse'
+      summary: Make short link
+swagger: "2.0"

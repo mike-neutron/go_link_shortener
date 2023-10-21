@@ -1,8 +1,0 @@
-basePath: /
-info:
-  contact: {}
-  description: api for making short links
-  title: Link shortener API
-  version: "1.0"
-paths: {}
-swagger: "2.0"
