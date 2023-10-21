@@ -30,6 +30,6 @@ func main() {
 	app.Get("/", controllers.HelloWorld)
 	app.Get("/swagger/*", swagger.HandlerDefault)
 	app.Post("/api/make", controllers.Make)
-	app.Get("/api/get/:short", controllers.Get)
+	app.Get("/api/get/:short<maxLen(100);alpha>", controllers.Get)
 	log.Fatal(app.Listen(":8080"))
 }

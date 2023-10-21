@@ -37,6 +37,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controllers.GetResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
                     }
                 }
             }
@@ -65,6 +71,9 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controllers.MakeResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request"
                     }
                 }
             }
@@ -83,17 +92,20 @@ const docTemplate = `{
         "controllers.MakeRequest": {
             "type": "object",
             "required": [
-                "link"
+                "original",
+                "short"
             ],
             "properties": {
-                "link": {
+                "original": {
                     "type": "string",
                     "maxLength": 1000,
-                    "minLength": 2,
-                    "example": "http://example.com/da3rsf"
+                    "minLength": 1,
+                    "example": "http://example.com/"
                 },
                 "short": {
                     "type": "string",
+                    "maxLength": 100,
+                    "minLength": 6,
                     "example": "da3rsf"
                 }
             }
@@ -103,7 +115,7 @@ const docTemplate = `{
             "properties": {
                 "short": {
                     "type": "string",
-                    "example": "http://example.com/da3rsf"
+                    "example": "da3rsf"
                 }
             }
         }

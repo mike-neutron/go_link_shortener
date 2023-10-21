@@ -8,21 +8,24 @@ definitions:
     type: object
   controllers.MakeRequest:
     properties:
-      link:
-        example: http://example.com/da3rsf
+      original:
+        example: http://example.com/
         maxLength: 1000
-        minLength: 2
+        minLength: 1
         type: string
       short:
         example: da3rsf
+        maxLength: 100
+        minLength: 6
         type: string
     required:
-    - link
+    - original
+    - short
     type: object
   controllers.MakeResponse:
     properties:
       short:
-        example: http://example.com/da3rsf
+        example: da3rsf
         type: string
     type: object
 info:
@@ -47,6 +50,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controllers.GetResponse'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
       summary: Get original link by short equivalent
   /api/make:
     post:
@@ -65,5 +72,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controllers.MakeResponse'
+        "400":
+          description: Bad Request
       summary: Make short link
 swagger: "2.0"

@@ -14,12 +14,12 @@ import (
 )
 
 type MakeRequest struct {
-	Short string `json:"short" example:"da3rsf"`
-	Link  string `json:"link" example:"http://example.com/da3rsf" validate:"required,min=2,max=1000"`
+	Short string `json:"short" example:"da3rsf" validate:"required,min=6,max=100"`
+	Link  string `json:"original" example:"http://example.com/" validate:"required,min=1,max=1000"`
 }
 
 type MakeResponse struct {
-	Short string `json:"short" example:"http://example.com/da3rsf"`
+	Short string `json:"short" example:"da3rsf"`
 }
 
 type GetResponse struct {
@@ -31,6 +31,7 @@ type GetResponse struct {
 //	@Produce		json
 //  @Param request body controllers.MakeRequest true "Make request"
 //	@Success		200	{object} MakeResponse
+//  @Failure        400
 //	@Router			/api/make [post]
 func Make(c *fiber.Ctx) error {
 	var (
@@ -90,6 +91,8 @@ func Make(c *fiber.Ctx) error {
 //	@Produce		json
 //	@Param			short	path		string	true "Short"	"String"
 //	@Success		200	{object}	GetResponse
+//  @Failure        400
+//  @Failure        404
 //	@Router			/api/get/{short} [get]
 func Get(c *fiber.Ctx) error {
 
